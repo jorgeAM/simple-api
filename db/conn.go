@@ -1,6 +1,7 @@
 package db
 
 import (
+	"log"
 	"os"
 
 	"github.com/jinzhu/gorm"
@@ -18,9 +19,16 @@ var (
 )
 
 // GetConnection return connection tu database
-func GetConnection() (*gorm.DB, error) {
-	dns := user + ":" + password +
+func GetConnection() *gorm.DB {
+	dsn := user + ":" + password +
 		"@(" + host + ":" + port + ")/" +
 		database + "?charset=utf8&parseTime=True&loc=Local"
-	return gorm.Open(engine, dns)
+	db, err := gorm.Open(engine, dsn)
+
+	if err != nil {
+		log.Fatal("something got wrong to connect with database", err)
+		return nil
+	}
+
+	return db
 }
