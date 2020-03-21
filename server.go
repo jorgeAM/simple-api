@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/gorilla/mux"
 )
@@ -14,6 +15,10 @@ type user struct {
 }
 
 func main() {
+	os.Setenv("MYSQL_USER", "root")
+	eu := os.Getenv("MYSQL_USER")
+	fmt.Println("ACA", eu)
+
 	r := mux.NewRouter()
 	r.HandleFunc("/user/{id}", getUser).Methods("GET")
 
