@@ -1,21 +1,26 @@
 package db
 
 import (
-	"log"
+	"os"
 
 	"github.com/jinzhu/gorm"
 	// driver to connect with mysql
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 )
 
+var (
+	engine   = os.Getenv("DB_ENGINE")
+	user     = os.Getenv("DB_USER")
+	password = os.Getenv("DB_PASSWORD")
+	host     = os.Getenv("DB_HOST")
+	port     = os.Getenv("DB_PORT")
+	database = os.Getenv("DB_DATABASE")
+)
+
 // GetConnection return connection tu database
-func GetConnection() *gorm.DB {
-	db, err := gorm.Open("mysql", "user:password@/dbname?charset=utf8&parseTime=True&loc=Local")
-
-	if err != nil {
-		log.Fatal("Something got wrong to open connection to database")
-		return nil
-	}
-
-	return db
+func GetConnection() (*gorm.DB, error) {
+	dns := user + ":" + password +
+		"@(" + host + ":" + port + ")/" +
+		database + "?charset=utf8&parseTime=True&loc=Local"
+	return gorm.Open(engine, dns)
 }

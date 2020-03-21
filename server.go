@@ -5,9 +5,10 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
 
 	"github.com/gorilla/mux"
+	_ "github.com/joho/godotenv/autoload"
+	"github.com/jorgeAM/api/db"
 )
 
 type user struct {
@@ -15,9 +16,12 @@ type user struct {
 }
 
 func main() {
-	os.Setenv("MYSQL_USER", "root")
-	eu := os.Getenv("MYSQL_USER")
-	fmt.Println("ACA", eu)
+	_, err := db.GetConnection()
+
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
 
 	r := mux.NewRouter()
 	r.HandleFunc("/user/{id}", getUser).Methods("GET")
