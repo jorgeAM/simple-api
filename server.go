@@ -16,7 +16,8 @@ type user struct {
 }
 
 func main() {
-	_, err := db.GetConnection()
+	db, err := db.GetConnection()
+	defer db.Close()
 
 	if err != nil {
 		log.Fatal(err)
