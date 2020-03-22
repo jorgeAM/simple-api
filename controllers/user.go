@@ -10,6 +10,29 @@ import (
 	"github.com/jorgeAM/api/utils"
 )
 
+// GetUsers returns users
+func GetUsers(w http.ResponseWriter, r *http.Request) {
+	db := db.GetConnection()
+	defer db.Close()
+
+	var users []models.User
+	db.Table("Users").Find(&users)
+	bytes, err := json.Marshal(&users)
+
+	if err != nil {
+		m := &models.Response{
+			Code:    http.StatusBadRequest,
+			Message: "something got wrong to convert to json",
+		}
+
+		utils.DisplayMessage(w, m)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(bytes)
+}
+
 // GetUser returns user by id
 func GetUser(w http.ResponseWriter, r *http.Request) {
 	db := db.GetConnection()
