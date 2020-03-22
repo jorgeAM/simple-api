@@ -2,12 +2,12 @@ package controllers
 
 import (
 	"encoding/json"
-	"log"
 	"net/http"
 
 	"github.com/gorilla/mux"
 	"github.com/jorgeAM/api/db"
 	"github.com/jorgeAM/api/models"
+	"github.com/jorgeAM/api/utils"
 )
 
 // GetUser returns user by id
@@ -22,17 +22,27 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 	db.Table("Users").First(&u, id)
 
 	if u.ID <= 0 {
-		log.Fatalf("user with id %s does not exist", id)
+		m := &models.Response{
+			Code:    http.StatusNotFound,
+			Message: "user with id " + id + " does not exist",
+		}
+
+		utils.DisplayMessage(w, m)
 		return
 	}
 
 	bytes, err := json.Marshal(u)
 
 	if err != nil {
-		log.Fatal("something got wrong to convert to json")
+		m := &models.Response{
+			Code:    http.StatusBadRequest,
+			Message: "something got wrong to convert to json",
+		}
+
+		utils.DisplayMessage(w, m)
 		return
 	}
 
+	w.Header().Set("Content-Type", "application/json")
 	w.Write(bytes)
-
 }
