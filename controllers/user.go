@@ -47,7 +47,43 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 	w.Write(bytes)
 }
 
-// DeleteUser delete user by id
+// NewUser creates a new user
+func NewUser(w http.ResponseWriter, r *http.Request) {
+	db := db.GetConnection()
+	defer db.Close()
+
+	u := models.User{}
+	json.NewDecoder(r.Body).Decode(&u)
+	err := db.Table("Users").Create(&u).Error
+
+	if err != nil {
+		m := &models.Response{
+			Code:    http.StatusBadRequest,
+			Message: "something got wrong when try to save user",
+		}
+
+		utils.DisplayMessage(w, m)
+		return
+	}
+
+	bytes, err := json.Marshal(u)
+
+	if err != nil {
+		m := &models.Response{
+			Code:    http.StatusBadRequest,
+			Message: "something got wrong to convert to json",
+		}
+
+		utils.DisplayMessage(w, m)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
+	w.Write(bytes)
+}
+
+// DeleteUser deletes user by id
 func DeleteUser(w http.ResponseWriter, r *http.Request) {
 	db := db.GetConnection()
 	defer db.Close()

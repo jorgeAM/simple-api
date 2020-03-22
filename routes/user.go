@@ -8,5 +8,6 @@ import (
 func initializeUsersRoutes(r *mux.Router) {
 	s := r.PathPrefix("/users").Subrouter()
 	s.HandleFunc("/{id}", controllers.GetUser).Methods("GET")
+	s.HandleFunc("", controllers.NewUser).Methods("POST")
 	s.HandleFunc("/{id}", controllers.DeleteUser).Methods("DELETE")
 }
