@@ -10,9 +10,47 @@ import (
 )
 
 const (
+	sqlInsert          = "INSERT INTO `Users` (.+) VALUES"
 	sqlSelectAll       = "^SELECT (.+) FROM `Users`$"
 	sqlSelectWithWhere = "^SELECT (.+) FROM `Users` WHERE (.+) ORDER BY `Users`.`id` ASC LIMIT 1$"
 )
+
+func TestNewUser(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	defer db.Close()
+
+	assert.Nilf(t, err, "%v Should be nil", err)
+
+	gDB, err := gorm.Open("mysql", db)
+	defer gDB.Close()
+
+	assert.Nilf(t, err, "%v Should be nil", err)
+
+	uRepo := &UserRepository{
+		DB: gDB,
+	}
+
+	user := &models.User{
+		ID:        1,
+		Username:  "jorgeAM",
+		FirstName: "jorge",
+		LastName:  "alfaro",
+	}
+
+	mock.ExpectBegin()
+	mock.ExpectExec(sqlInsert).WithArgs(
+		user.ID,
+		user.Username,
+		user.FirstName,
+		user.LastName,
+	).WillReturnResult(sqlmock.NewResult(int64(user.ID), 1))
+	mock.ExpectCommit()
+
+	u, err := uRepo.NewUser(user)
+
+	assert.Nilf(t, err, "%v Should be nil", err)
+	assert.Equal(t, user, u)
+}
 
 func TestGetUsers(t *testing.T) {
 	db, mock, err := sqlmock.New()
