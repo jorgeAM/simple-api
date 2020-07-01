@@ -10,9 +10,11 @@ import (
 )
 
 const (
-	sqlInsert          = "INSERT INTO `Users` (.+) VALUES"
+	sqlInsert          = "^INSERT INTO `Users` (.+) VALUES"
 	sqlSelectAll       = "^SELECT (.+) FROM `Users`$"
 	sqlSelectWithWhere = "^SELECT (.+) FROM `Users` WHERE (.+) ORDER BY `Users`.`id` ASC LIMIT 1$"
+	sqlUpdate          = "^UPDATE `Users` SET (.+) WHERE (.+)"
+	sqlDelete          = "DELETE FROM `Users` WHERE (.+)"
 )
 
 func TestNewUser(t *testing.T) {
@@ -143,4 +145,38 @@ func TestGetUserNotFound(t *testing.T) {
 
 	assert.NotNil(t, err, "%v Should not be nil", err)
 	assert.Nil(t, u, "%v should be nil", u)
+}
+
+func TestDeleteUser(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	defer db.Close()
+
+	assert.Nilf(t, err, "%v Should be nil", err)
+
+	gDB, err := gorm.Open("mysql", db)
+	defer gDB.Close()
+
+	assert.Nilf(t, err, "%v Should be nil", err)
+
+	uRepo := &UserRepository{
+		DB: gDB,
+	}
+
+	user := &models.User{
+		ID:        1,
+		Username:  "jorgeAM",
+		FirstName: "jorge",
+		LastName:  "alfaro",
+	}
+
+	sqlmock.NewRows([]string{"id", "userName", "firstName", "lastName"}).
+		AddRow(user.ID, user.Username, user.FirstName, user.LastName)
+
+	mock.ExpectBegin()
+	mock.ExpectExec(sqlDelete).WillReturnResult(sqlmock.NewResult(int64(user.ID), 1))
+	mock.ExpectCommit()
+
+	err = uRepo.DeleteUser(user.ID)
+
+	assert.Nilf(t, err, "%v Should be nil", err)
 }

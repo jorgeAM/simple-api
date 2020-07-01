@@ -58,7 +58,7 @@ func (u *UserRepository) UpdateUser(user *models.User) (*models.User, error) {
 
 // DeleteUser deletes a user
 func (u *UserRepository) DeleteUser(id int) error {
-	err := u.DB.Table("User").Where("id = ?", id).Delete(models.User{}).Error
+	err := u.DB.Table("Users").Where("id = ?", id).Delete(models.User{}).Error
 
 	if err != nil {
 		return err
