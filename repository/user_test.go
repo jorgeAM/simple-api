@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"errors"
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
@@ -179,4 +180,28 @@ func TestDeleteUser(t *testing.T) {
 	err = uRepo.DeleteUser(user.ID)
 
 	assert.Nilf(t, err, "%v Should be nil", err)
+}
+
+func TestDeleteUserWithError(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	defer db.Close()
+
+	assert.Nilf(t, err, "%v Should be nil", err)
+
+	gDB, err := gorm.Open("mysql", db)
+	defer gDB.Close()
+
+	assert.Nilf(t, err, "%v Should be nil", err)
+
+	uRepo := &UserRepository{
+		DB: gDB,
+	}
+
+	mock.ExpectBegin()
+	mock.ExpectExec(sqlDelete).WillReturnResult(sqlmock.NewErrorResult(errors.New("not found")))
+	mock.ExpectCommit()
+
+	err = uRepo.DeleteUser(1)
+
+	assert.NotNilf(t, err, "%v Should not be nil", err)
 }
