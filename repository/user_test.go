@@ -96,6 +96,28 @@ func TestGetUsers(t *testing.T) {
 	assert.Equal(t, usersExpected, users)
 }
 
+func TestGetUsersWithError(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	defer db.Close()
+
+	assert.Nilf(t, err, "%v Should be nil", err)
+
+	gDB, err := gorm.Open("mysql", db)
+	defer gDB.Close()
+
+	assert.Nilf(t, err, "%v Should be nil", err)
+
+	uRepo := &UserRepository{
+		DB: gDB,
+	}
+
+	mock.ExpectQuery(sqlSelectAll).WillReturnError(errors.New("something got wrong"))
+	users, err := uRepo.GetUsers()
+
+	assert.NotNilf(t, err, "%v Should not be nil", err)
+	assert.Nilf(t, users, "%v Should be nil", users)
+}
+
 func TestGetUser(t *testing.T) {
 	db, mock, err := sqlmock.New()
 	defer db.Close()
