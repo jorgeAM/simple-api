@@ -3,20 +3,33 @@ package controllers
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
 
 	"github.com/gorilla/mux"
-	"github.com/jorgeAM/api/db"
 	"github.com/jorgeAM/api/models"
+	"github.com/jorgeAM/api/repository"
 	"github.com/jorgeAM/api/utils"
 )
 
-// GetUsers returns users
-func GetUsers(w http.ResponseWriter, r *http.Request) {
-	db := db.GetConnection()
-	defer db.Close()
+// Handler handles all endpoint for user
+type Handler struct {
+	Repository repository.Repository
+}
 
-	var users []models.User
-	db.Table("Users").Find(&users)
+// GetUsers retrieve users
+func (h *Handler) GetUsers(w http.ResponseWriter, r *http.Request) {
+	users, err := h.Repository.GetUsers()
+
+	if err != nil {
+		m := &models.Response{
+			Code:    http.StatusInternalServerError,
+			Message: "something got wrong to retrieve users",
+		}
+
+		utils.DisplayMessage(w, m)
+		return
+	}
+
 	bytes, err := json.Marshal(&users)
 
 	if err != nil {
@@ -34,17 +47,25 @@ func GetUsers(w http.ResponseWriter, r *http.Request) {
 }
 
 // GetUser returns user by id
-func GetUser(w http.ResponseWriter, r *http.Request) {
-	db := db.GetConnection()
-	defer db.Close()
-
+func (h *Handler) GetUser(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
 
-	u := models.User{}
-	db.Table("Users").First(&u, id)
+	castedID, err := strconv.Atoi(id)
 
-	if u.ID <= 0 {
+	if err != nil {
+		m := &models.Response{
+			Code:    http.StatusInternalServerError,
+			Message: "something got wrong to retrieve users",
+		}
+
+		utils.DisplayMessage(w, m)
+		return
+	}
+
+	user, err := h.Repository.GetUser(castedID)
+
+	if err != nil || user.ID <= 0 {
 		m := &models.Response{
 			Code:    http.StatusNotFound,
 			Message: "user with id " + id + " does not exist",
@@ -54,7 +75,7 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	bytes, err := json.Marshal(u)
+	bytes, err := json.Marshal(user)
 
 	if err != nil {
 		m := &models.Response{
@@ -71,13 +92,11 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 }
 
 // NewUser creates a new user
-func NewUser(w http.ResponseWriter, r *http.Request) {
-	db := db.GetConnection()
-	defer db.Close()
+func (h *Handler) NewUser(w http.ResponseWriter, r *http.Request) {
+	u := new(models.User)
+	json.NewDecoder(r.Body).Decode(u)
 
-	u := models.User{}
-	json.NewDecoder(r.Body).Decode(&u)
-	err := db.Table("Users").Create(&u).Error
+	u, err := h.Repository.NewUser(u)
 
 	if err != nil {
 		m := &models.Response{
@@ -107,17 +126,25 @@ func NewUser(w http.ResponseWriter, r *http.Request) {
 }
 
 // UpdateUser updates user by id
-func UpdateUser(w http.ResponseWriter, r *http.Request) {
-	db := db.GetConnection()
-	defer db.Close()
-
+func (h *Handler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
 
-	u := models.User{}
-	db.Table("Users").First(&u, id)
+	castedID, err := strconv.Atoi(id)
 
-	if u.ID <= 0 {
+	if err != nil {
+		m := &models.Response{
+			Code:    http.StatusInternalServerError,
+			Message: "something got wrong to read id of user users",
+		}
+
+		utils.DisplayMessage(w, m)
+		return
+	}
+
+	u, err := h.Repository.GetUser(castedID)
+
+	if err != nil || u.ID <= 0 {
 		m := &models.Response{
 			Code:    http.StatusNotFound,
 			Message: "user with id " + id + " does not exist",
@@ -127,7 +154,7 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := json.NewDecoder(r.Body).Decode(&u)
+	err = json.NewDecoder(r.Body).Decode(u)
 
 	if err != nil {
 		m := &models.Response{
@@ -139,7 +166,7 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = db.Table("Users").Save(&u).Error
+	u, err = h.Repository.UpdateUser(u)
 
 	if err != nil {
 		m := &models.Response{
@@ -151,7 +178,7 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	bytes, err := json.Marshal(&u)
+	bytes, err := json.Marshal(u)
 
 	if err != nil {
 		m := &models.Response{
@@ -164,22 +191,30 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusCreated)
+	w.WriteHeader(http.StatusOK)
 	w.Write(bytes)
 }
 
 // DeleteUser deletes user by id
-func DeleteUser(w http.ResponseWriter, r *http.Request) {
-	db := db.GetConnection()
-	defer db.Close()
-
+func (h *Handler) DeleteUser(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
 
-	u := models.User{}
-	db.Table("Users").First(&u, id)
+	castedID, err := strconv.Atoi(id)
 
-	if u.ID <= 0 {
+	if err != nil {
+		m := &models.Response{
+			Code:    http.StatusInternalServerError,
+			Message: "something got wrong to read id of user users",
+		}
+
+		utils.DisplayMessage(w, m)
+		return
+	}
+
+	u, err := h.Repository.GetUser(castedID)
+
+	if err != nil || u.ID <= 0 {
 		m := &models.Response{
 			Code:    http.StatusNotFound,
 			Message: "user with id " + id + " does not exist",
@@ -189,12 +224,12 @@ func DeleteUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := db.Table("Users").Delete(&u).Error
+	err = h.Repository.DeleteUser(castedID)
 
 	if err != nil {
 		m := &models.Response{
-			Code:    http.StatusBadRequest,
-			Message: "something got wrong when try to delete record",
+			Code:    http.StatusNotFound,
+			Message: "user with id " + id + " does not exist",
 		}
 
 		utils.DisplayMessage(w, m)

@@ -5,11 +5,11 @@ import (
 	"github.com/jorgeAM/api/controllers"
 )
 
-func initializeUsersRoutes(r *mux.Router) {
+func initializeUsersRoutes(r *mux.Router, handler controllers.Handler) {
 	s := r.PathPrefix("/users").Subrouter()
-	s.HandleFunc("", controllers.NewUser).Methods("POST")
-	s.HandleFunc("", controllers.GetUsers).Methods("GET")
-	s.HandleFunc("/{id}", controllers.GetUser).Methods("GET")
-	s.HandleFunc("/{id}", controllers.UpdateUser).Methods("PUT")
-	s.HandleFunc("/{id}", controllers.DeleteUser).Methods("DELETE")
+	s.HandleFunc("", handler.NewUser).Methods("POST")
+	s.HandleFunc("", handler.GetUsers).Methods("GET")
+	s.HandleFunc("/{id}", handler.GetUser).Methods("GET")
+	s.HandleFunc("/{id}", handler.UpdateUser).Methods("PUT")
+	s.HandleFunc("/{id}", handler.DeleteUser).Methods("DELETE")
 }

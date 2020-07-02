@@ -11,11 +11,11 @@ import (
 )
 
 const (
-	sqlInsert          = "^INSERT INTO `Users` (.+) VALUES"
-	sqlSelectAll       = "^SELECT (.+) FROM `Users`$"
-	sqlSelectWithWhere = "^SELECT (.+) FROM `Users` WHERE (.+) ORDER BY `Users`.`id` ASC LIMIT 1$"
-	sqlUpdate          = "^UPDATE `Users` SET (.+) WHERE (.+)"
-	sqlDelete          = "DELETE FROM `Users` WHERE (.+)"
+	sqlInsert          = "^INSERT INTO `users` (.+) VALUES"
+	sqlSelectAll       = "^SELECT (.+) FROM `users`$"
+	sqlSelectWithWhere = "^SELECT (.+) FROM `users` WHERE (.+) ORDER BY `users`.`id` ASC LIMIT 1$"
+	sqlUpdate          = "^UPDATE `users` SET (.+) WHERE (.+)"
+	sqlDelete          = "DELETE FROM `users` WHERE (.+)"
 )
 
 func TestNewUser(t *testing.T) {

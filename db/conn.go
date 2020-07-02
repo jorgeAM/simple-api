@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/jinzhu/gorm"
+
 	// driver to connect with mysql
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 )
