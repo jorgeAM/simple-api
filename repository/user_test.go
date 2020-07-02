@@ -55,6 +55,43 @@ func TestNewUser(t *testing.T) {
 	assert.Equal(t, user, u)
 }
 
+func TestNewUserWithError(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	defer db.Close()
+
+	assert.Nilf(t, err, "%v Should be nil", err)
+
+	gDB, err := gorm.Open("mysql", db)
+	defer gDB.Close()
+
+	assert.Nilf(t, err, "%v Should be nil", err)
+
+	uRepo := &UserRepository{
+		DB: gDB,
+	}
+
+	user := &models.User{
+		ID:        1,
+		Username:  "jorgeAM",
+		FirstName: "jorge",
+		LastName:  "alfaro",
+	}
+
+	mock.ExpectBegin()
+	mock.ExpectExec(sqlInsert).WithArgs(
+		user.ID,
+		user.Username,
+		user.FirstName,
+		user.LastName,
+	).WillReturnError(errors.New("Something got wrong to save record"))
+	mock.ExpectCommit()
+
+	u, err := uRepo.NewUser(user)
+
+	assert.Nilf(t, u, "%v Should be nil", u)
+	assert.NotNilf(t, err, "%v should not be nil", err)
+}
+
 func TestGetUsers(t *testing.T) {
 	db, mock, err := sqlmock.New()
 	defer db.Close()
