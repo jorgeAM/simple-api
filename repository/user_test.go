@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"database/sql"
 	"errors"
 	"testing"
 
@@ -8,6 +9,8 @@ import (
 	"github.com/jinzhu/gorm"
 	"github.com/jorgeAM/api/models"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+	"github.com/stretchr/testify/suite"
 )
 
 const (
@@ -18,95 +21,74 @@ const (
 	sqlDelete          = "DELETE FROM `users` WHERE (.+)"
 )
 
-func TestNewUser(t *testing.T) {
-	db, mock, err := sqlmock.New()
-	defer db.Close()
-
-	assert.Nilf(t, err, "%v Should be nil", err)
-
-	gDB, err := gorm.Open("mysql", db)
-	defer gDB.Close()
-
-	assert.Nilf(t, err, "%v Should be nil", err)
-
-	uRepo := &UserRepository{
-		DB: gDB,
-	}
-
-	user := &models.User{
-		ID:        1,
-		Username:  "jorgeAM",
-		FirstName: "jorge",
-		LastName:  "alfaro",
-	}
-
-	mock.ExpectBegin()
-	mock.ExpectExec(sqlInsert).WithArgs(
-		user.ID,
-		user.Username,
-		user.FirstName,
-		user.LastName,
-	).WillReturnResult(sqlmock.NewResult(int64(user.ID), 1))
-	mock.ExpectCommit()
-
-	u, err := uRepo.NewUser(user)
-
-	assert.Nilf(t, err, "%v Should be nil", err)
-	assert.Equal(t, user, u)
+type UserSuite struct {
+	suite.Suite
+	DB         *gorm.DB
+	mock       sqlmock.Sqlmock
+	repository Repository
+	user       *models.User
 }
 
-func TestNewUserWithError(t *testing.T) {
-	db, mock, err := sqlmock.New()
-	defer db.Close()
+func (s *UserSuite) SetupSuite() {
+	var (
+		db  *sql.DB
+		err error
+	)
 
-	assert.Nilf(t, err, "%v Should be nil", err)
+	db, s.mock, err = sqlmock.New()
+	require.NoError(s.T(), err)
 
-	gDB, err := gorm.Open("mysql", db)
-	defer gDB.Close()
+	s.DB, err = gorm.Open("mysql", db)
+	require.NoError(s.T(), err)
 
-	assert.Nilf(t, err, "%v Should be nil", err)
+	s.DB.LogMode(true)
 
-	uRepo := &UserRepository{
-		DB: gDB,
-	}
-
-	user := &models.User{
+	s.repository = &UserRepository{DB: s.DB}
+	s.user = &models.User{
 		ID:        1,
 		Username:  "jorgeAM",
 		FirstName: "jorge",
 		LastName:  "alfaro",
 	}
+}
 
-	mock.ExpectBegin()
-	mock.ExpectExec(sqlInsert).WithArgs(
-		user.ID,
-		user.Username,
-		user.FirstName,
-		user.LastName,
+func (s *UserSuite) AfterTest(_, _ string) {
+	require.NoError(s.T(), s.mock.ExpectationsWereMet())
+}
+
+func (s *UserSuite) TestNewUser() {
+	s.mock.ExpectBegin()
+	s.mock.ExpectExec(sqlInsert).WithArgs(
+		s.user.ID,
+		s.user.Username,
+		s.user.FirstName,
+		s.user.LastName,
+	).WillReturnResult(sqlmock.NewResult(int64(s.user.ID), 1))
+	s.mock.ExpectCommit()
+
+	user, err := s.repository.NewUser(s.user)
+
+	assert.Nilf(s.T(), err, "%v Should be nil", err)
+	assert.Equal(s.T(), s.user, user)
+}
+
+func (s *UserSuite) TestNewUserWithError() {
+	s.mock.ExpectBegin()
+	s.mock.ExpectExec(sqlInsert).WithArgs(
+		s.user.ID,
+		s.user.Username,
+		s.user.FirstName,
+		s.user.LastName,
 	).WillReturnError(errors.New("Something got wrong to save record"))
-	mock.ExpectCommit()
+	s.mock.ExpectRollback()
 
-	u, err := uRepo.NewUser(user)
+	user, err := s.repository.NewUser(s.user)
 
-	assert.Nilf(t, u, "%v Should be nil", u)
-	assert.NotNilf(t, err, "%v should not be nil", err)
+	assert.Nilf(s.T(), user, "%v Should be nil", user)
+	assert.NotNilf(s.T(), err, "%v should not be nil", err)
 }
 
-func TestGetUsers(t *testing.T) {
-	db, mock, err := sqlmock.New()
-	defer db.Close()
-
-	assert.Nilf(t, err, "%v Should be nil", err)
-
-	gDB, err := gorm.Open("mysql", db)
-	defer gDB.Close()
-
-	assert.Nilf(t, err, "%v Should be nil", err)
-
-	uRepo := &UserRepository{
-		DB: gDB,
-	}
-
+func (s *UserSuite) TestGetUsers() {
 	rows := sqlmock.NewRows([]string{"id", "userName", "firstName", "lastName"}).
 		AddRow(1, "jorgeAM", "jorge", "alfaro").
 		AddRow(2, "liliMA", "liliana", "murga")
@@ -126,141 +108,67 @@ func TestGetUsers(t *testing.T) {
 		},
 	}
 
-	mock.ExpectQuery(sqlSelectAll).WillReturnRows(rows)
-	users, err := uRepo.GetUsers()
+	s.mock.ExpectQuery(sqlSelectAll).WillReturnRows(rows)
 
-	assert.Nilf(t, err, "%v Should be nil", err)
-	assert.Equal(t, usersExpected, users)
+	users, err := s.repository.GetUsers()
+
+	assert.Nilf(s.T(), err, "%v Should be nil", err)
+	assert.Equal(s.T(), usersExpected, users)
 }
 
-func TestGetUsersWithError(t *testing.T) {
-	db, mock, err := sqlmock.New()
-	defer db.Close()
+func (s *UserSuite) TestGetUsersWithError() {
+	s.mock.ExpectQuery(sqlSelectAll).WillReturnError(errors.New("something got wrong"))
 
-	assert.Nilf(t, err, "%v Should be nil", err)
+	users, err := s.repository.GetUsers()
 
-	gDB, err := gorm.Open("mysql", db)
-	defer gDB.Close()
-
-	assert.Nilf(t, err, "%v Should be nil", err)
-
-	uRepo := &UserRepository{
-		DB: gDB,
-	}
-
-	mock.ExpectQuery(sqlSelectAll).WillReturnError(errors.New("something got wrong"))
-	users, err := uRepo.GetUsers()
-
-	assert.NotNilf(t, err, "%v Should not be nil", err)
-	assert.Nilf(t, users, "%v Should be nil", users)
+	assert.NotNilf(s.T(), err, "%v Should not be nil", err)
+	assert.Nilf(s.T(), users, "%v Should be nil", users)
 }
 
-func TestGetUser(t *testing.T) {
-	db, mock, err := sqlmock.New()
-	defer db.Close()
-
-	assert.Nilf(t, err, "%v Should be nil", err)
-
-	gDB, err := gorm.Open("mysql", db)
-	defer gDB.Close()
-
-	uRepo := &UserRepository{
-		DB: gDB,
-	}
-
-	user := &models.User{
-		ID:        1,
-		Username:  "jorgeAM",
-		FirstName: "jorge",
-		LastName:  "alfaro",
-	}
-
+func (s *UserSuite) TestGetUser() {
 	rows := sqlmock.NewRows([]string{"id", "userName", "firstName", "lastName"}).
-		AddRow(user.ID, user.Username, user.FirstName, user.LastName)
+		AddRow(s.user.ID, s.user.Username, s.user.FirstName, s.user.LastName)
 
-	mock.ExpectQuery(sqlSelectWithWhere).WillReturnRows(rows)
-	u, err := uRepo.GetUser(1)
+	s.mock.ExpectQuery(sqlSelectWithWhere).WillReturnRows(rows)
 
-	assert.Nilf(t, err, "%v Should be nil", err)
-	assert.Equal(t, user, u)
+	user, err := s.repository.GetUser(s.user.ID)
+
+	assert.Nilf(s.T(), err, "%v Should be nil", err)
+	assert.Equal(s.T(), s.user, user)
 }
 
-func TestGetUserNotFound(t *testing.T) {
-	db, mock, err := sqlmock.New()
-	defer db.Close()
+func (s *UserSuite) TestGetUserNotFound() {
+	s.mock.ExpectQuery(sqlSelectWithWhere).WillReturnRows(sqlmock.NewRows(nil))
 
-	assert.Nilf(t, err, "%v Should be nil", err)
+	user, err := s.repository.GetUser(s.user.ID)
 
-	gDB, err := gorm.Open("mysql", db)
-	defer gDB.Close()
-
-	uRepo := &UserRepository{
-		DB: gDB,
-	}
-
-	rows := sqlmock.NewRows(nil)
-
-	mock.ExpectQuery(sqlSelectWithWhere).WillReturnRows(rows)
-	u, err := uRepo.GetUser(1)
-
-	assert.NotNil(t, err, "%v Should not be nil", err)
-	assert.Nil(t, u, "%v should be nil", u)
+	assert.NotNil(s.T(), err, "%v Should not be nil", err)
+	assert.Nilf(s.T(), user, "%v should be nil", user)
 }
 
-func TestDeleteUser(t *testing.T) {
-	db, mock, err := sqlmock.New()
-	defer db.Close()
-
-	assert.Nilf(t, err, "%v Should be nil", err)
-
-	gDB, err := gorm.Open("mysql", db)
-	defer gDB.Close()
-
-	assert.Nilf(t, err, "%v Should be nil", err)
-
-	uRepo := &UserRepository{
-		DB: gDB,
-	}
-
-	user := &models.User{
-		ID:        1,
-		Username:  "jorgeAM",
-		FirstName: "jorge",
-		LastName:  "alfaro",
-	}
-
+func (s *UserSuite) TestDeleteUser() {
 	sqlmock.NewRows([]string{"id", "userName", "firstName", "lastName"}).
-		AddRow(user.ID, user.Username, user.FirstName, user.LastName)
+		AddRow(s.user.ID, s.user.Username, s.user.FirstName, s.user.LastName)
 
-	mock.ExpectBegin()
-	mock.ExpectExec(sqlDelete).WillReturnResult(sqlmock.NewResult(int64(user.ID), 1))
-	mock.ExpectCommit()
+	s.mock.ExpectBegin()
+	s.mock.ExpectExec(sqlDelete).WillReturnResult(sqlmock.NewResult(int64(s.user.ID), 1))
+	s.mock.ExpectCommit()
 
-	err = uRepo.DeleteUser(user.ID)
+	err := s.repository.DeleteUser(s.user.ID)
 
-	assert.Nilf(t, err, "%v Should be nil", err)
+	assert.Nilf(s.T(), err, "%v Should be nil", err)
 }
 
-func TestDeleteUserWithError(t *testing.T) {
-	db, mock, err := sqlmock.New()
-	defer db.Close()
+func (s *UserSuite) TestDeleteUserWithError() {
+	s.mock.ExpectBegin()
+	s.mock.ExpectExec(sqlDelete).WillReturnResult(sqlmock.NewErrorResult(errors.New("not found")))
+	s.mock.ExpectRollback()
 
-	assert.Nilf(t, err, "%v Should be nil", err)
+	err := s.repository.DeleteUser(s.user.ID)
 
-	gDB, err := gorm.Open("mysql", db)
-	defer gDB.Close()
+	assert.NotNilf(s.T(), err, "%v Should not be nil", err)
+}
 
-	assert.Nilf(t, err, "%v Should be nil", err)
-
-	uRepo := &UserRepository{
-		DB: gDB,
-	}
-
-	mock.ExpectBegin()
-	mock.ExpectExec(sqlDelete).WillReturnResult(sqlmock.NewErrorResult(errors.New("not found")))
-	mock.ExpectCommit()
-
-	err = uRepo.DeleteUser(1)
-
-	assert.NotNilf(t, err, "%v Should not be nil", err)
+func TestUserSuite(t *testing.T) {
+	suite.Run(t, new(UserSuite))
 }
