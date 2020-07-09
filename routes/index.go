@@ -2,13 +2,13 @@ package routes
 
 import (
 	"github.com/gorilla/mux"
-	"github.com/jorgeAM/api/controllers"
-	"github.com/jorgeAM/api/repository"
+	"github.com/jorgeAM/api/handler"
+	"github.com/jorgeAM/api/service"
 )
 
 // InitializeRoutes initialize all endpoints
-func InitializeRoutes(repository repository.Repository) *mux.Router {
-	r, handler := mux.NewRouter(), controllers.Handler{Repository: repository}
+func InitializeRoutes(service service.UserService) *mux.Router {
+	r, handler := mux.NewRouter(), handler.Handler{Service: service}
 	initializeUsersRoutes(r, handler)
 	return r
 }

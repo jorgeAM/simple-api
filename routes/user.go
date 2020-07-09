@@ -2,10 +2,10 @@ package routes
 
 import (
 	"github.com/gorilla/mux"
-	"github.com/jorgeAM/api/controllers"
+	"github.com/jorgeAM/api/handler"
 )
 
-func initializeUsersRoutes(r *mux.Router, handler controllers.Handler) {
+func initializeUsersRoutes(r *mux.Router, handler handler.Handler) {
 	s := r.PathPrefix("/users").Subrouter()
 	s.HandleFunc("", handler.NewUser).Methods("POST")
 	s.HandleFunc("", handler.GetUsers).Methods("GET")
