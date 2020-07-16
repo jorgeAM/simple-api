@@ -11,19 +11,12 @@ import (
 )
 
 var (
-	engine   = os.Getenv("DB_ENGINE")
-	user     = os.Getenv("DB_USER")
-	password = os.Getenv("DB_PASSWORD")
-	host     = os.Getenv("DB_HOST")
-	port     = os.Getenv("DB_PORT")
-	database = os.Getenv("DB_DATABASE")
+	engine = os.Getenv("DB_ENGINE")
+	dsn    = os.Getenv("JAWSDB_URL")
 )
 
 // GetConnection return connection tu database
 func GetConnection() *gorm.DB {
-	dsn := user + ":" + password +
-		"@(" + host + ":" + port + ")/" +
-		database + "?charset=utf8&parseTime=True&loc=Local"
 	db, err := gorm.Open(engine, dsn)
 
 	if err != nil {
