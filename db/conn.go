@@ -17,6 +17,8 @@ var (
 
 // GetConnection return connection tu database
 func GetConnection() *gorm.DB {
+	log.Println("engine: ", engine)
+	log.Println("dsn: ", dsn)
 	db, err := gorm.Open(engine, dsn)
 
 	if err != nil {
