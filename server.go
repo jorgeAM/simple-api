@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"net/http"
+	"os"
 
 	_ "github.com/joho/godotenv/autoload"
 	"github.com/jorgeAM/api/db"
@@ -12,14 +13,15 @@ import (
 )
 
 func main() {
+	port := ":" + os.Getenv("PORT")
 	repository := &repository.UserRepository{DB: db.GetConnection()}
 	service := service.UserService{Repository: repository}
 
 	s := http.Server{
-		Addr:    ":3000",
+		Addr:    port,
 		Handler: routes.InitializeRoutes(service),
 	}
 
-	log.Println("server is running on port 3000")
+	log.Println("server is running on port " + port)
 	log.Fatal(s.ListenAndServe())
 }
