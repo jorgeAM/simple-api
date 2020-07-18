@@ -11,7 +11,7 @@ on:
 
 jobs:
   build:
-    name: Build
+    name: this is a test 4 build
     runs-on: ubuntu-latest
     steps:
       - name: Setup Go 1.x
