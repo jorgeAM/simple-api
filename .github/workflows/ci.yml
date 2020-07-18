@@ -10,7 +10,7 @@ on:
       - master
 
 jobs:
-  build:
+  ddd:
     name: this is a test 4 build
     runs-on: ubuntu-latest
     steps:
