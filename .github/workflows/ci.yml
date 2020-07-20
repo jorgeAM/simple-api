@@ -31,9 +31,6 @@ jobs:
             ${{runner.os}}-go-
             ${{runner.os}}-
 
-      - name: Get dependecies
-        run: go get -v -u ./...
-
       - name: Tests
         run: go test -v ./...
 
