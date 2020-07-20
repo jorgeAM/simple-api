@@ -19,8 +19,17 @@ jobs:
         with:
           go-version: ^1.13
 
-      - name: check out code into Go module directory
+      - name: Check out code into Go module directory
         uses: actions/checkout@v2
+
+      - name: Cache go modules
+        uses: actions/cache@v2
+        with:
+          path: ~/go/pkg/mod
+          key: ${{runner.os}}-go-${{hashFiles('**/go.sum')}}
+          restore-keys: |
+            ${{runner.os}}-go-
+            ${{runner.os}}-
 
       - name: Get dependecies
         run: go mod download
@@ -39,6 +48,15 @@ jobs:
 
       - name: check out code into Go module directory
         uses: actions/checkout@v2
+
+      - name: Cache go modules
+        uses: actions/cache@v2
+        with:
+          path: ~/go/pkg/mod
+          key: ${{runner.os}}-go-${{hashFiles('**/go.sum')}}
+          restore-keys: |
+            ${{runner.os}}-go-
+            ${{runner.os}}-
 
       - name: Get dependecies
         run: go mod download
