@@ -55,8 +55,5 @@ jobs:
             ${{runner.os}}-go-
             ${{runner.os}}-
 
-      - name: Get dependecies
-        run: go get -v -u ./...
-
       - name: Build binary
         run: GOOS=linux GOARCH=amd64 go build -o application -ldflags="-s -w"
