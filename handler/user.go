@@ -16,6 +16,20 @@ type Handler struct {
 	Service service.UserService
 }
 
+// Get is a test endpoints
+func (h *Handler) Get(w http.ResponseWriter, r *http.Request) {
+	u := &models.User{
+		FirstName: "Jorge",
+		LastName:  "Alfaro",
+		Username:  "s3v",
+	}
+
+	bytes, _ := json.Marshal(u)
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write(bytes)
+}
+
 // GetUsers retrieve users
 func (h *Handler) GetUsers(w http.ResponseWriter, r *http.Request) {
 	users, err := h.Service.Repository.GetUsers()
