@@ -1,4 +1,4 @@
-CREATE TABLE courses
+CREATE TABLE users
 (
     id VARCHAR(40) NOT NULL,
     username VARCHAR(255) NOT NULL,
