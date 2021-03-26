@@ -1,7 +1,14 @@
 version: "3.7"
+
+volumes:
+  mysql_data:
+
 services:
   db:
     image: mysql
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./sql:/docker-entrypoint-initdb.d
     ports:
       - 3306:3306
     command: --default-authentication-plugin=mysql_native_password
