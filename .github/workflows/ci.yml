@@ -62,4 +62,4 @@ jobs:
         run: go mod tidy
 
       - name: Build binary
-        run: GOOS=linux GOARCH=amd64 go build -o /bin/application -ldflags="-s -w" /cmd/api/main.go
+        run: GOOS=linux GOARCH=amd64 go build -o ./bin/app -ldflags="-s -w" ./cmd/api/main.go
