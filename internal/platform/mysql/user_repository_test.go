@@ -1,4 +1,4 @@
-package repository
+package mysql
 
 import (
 	"database/sql"
@@ -7,10 +7,11 @@ import (
 
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/jinzhu/gorm"
-	"github.com/jorgeAM/api/models"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
+
+	"github.com/jorgeAM/api/internal/user/domain"
 )
 
 const (
@@ -25,8 +26,8 @@ type UserSuite struct {
 	suite.Suite
 	DB         *gorm.DB
 	mock       sqlmock.Sqlmock
-	repository Repository
-	user       *models.User
+	repository domain.Repository
+	user       *domain.User
 }
 
 func (s *UserSuite) SetupSuite() {
@@ -43,9 +44,10 @@ func (s *UserSuite) SetupSuite() {
 
 	s.DB.LogMode(true)
 
-	s.repository = &UserRepository{DB: s.DB}
-	s.user = &models.User{
-		ID:        1,
+	s.repository = NewUserRepository(s.DB)
+
+	s.user = &domain.User{
+		ID:        "88109b71-996c-42cd-997e-cbf81cf8f886",
 		Username:  "jorgeAM",
 		FirstName: "jorge",
 		LastName:  "alfaro",
@@ -63,7 +65,8 @@ func (s *UserSuite) TestNewUser() {
 		s.user.Username,
 		s.user.FirstName,
 		s.user.LastName,
-	).WillReturnResult(sqlmock.NewResult(int64(s.user.ID), 1))
+	).WillReturnResult(sqlmock.NewResult(1, 1))
+
 	s.mock.ExpectCommit()
 
 	user, err := s.repository.NewUser(s.user)
@@ -90,18 +93,18 @@ func (s *UserSuite) TestNewUserWithError() {
 
 func (s *UserSuite) TestGetUsers() {
 	rows := sqlmock.NewRows([]string{"id", "userName", "firstName", "lastName"}).
-		AddRow(1, "jorgeAM", "jorge", "alfaro").
-		AddRow(2, "liliMA", "liliana", "murga")
+		AddRow("88109b71-996c-42cd-997e-cbf81cf8f885", "jorgeAM", "jorge", "alfaro").
+		AddRow("88109b71-996c-42cd-997e-cbf81cf8f881", "liliMA", "liliana", "murga")
 
-	usersExpected := []*models.User{
+	usersExpected := []*domain.User{
 		{
-			ID:        1,
+			ID:        "88109b71-996c-42cd-997e-cbf81cf8f885",
 			Username:  "jorgeAM",
 			FirstName: "jorge",
 			LastName:  "alfaro",
 		},
 		{
-			ID:        2,
+			ID:        "88109b71-996c-42cd-997e-cbf81cf8f881",
 			Username:  "liliMA",
 			FirstName: "liliana",
 			LastName:  "murga",
@@ -151,7 +154,7 @@ func (s *UserSuite) TestDeleteUser() {
 		AddRow(s.user.ID, s.user.Username, s.user.FirstName, s.user.LastName)
 
 	s.mock.ExpectBegin()
-	s.mock.ExpectExec(sqlDelete).WillReturnResult(sqlmock.NewResult(int64(s.user.ID), 1))
+	s.mock.ExpectExec(sqlDelete).WillReturnResult(sqlmock.NewResult(1, 1))
 	s.mock.ExpectCommit()
 
 	err := s.repository.DeleteUser(s.user.ID)
