@@ -1,6 +1,5 @@
-package models
+package response
 
-// Response -> model
 type Response struct {
 	Code    int    `json:"code"`
 	Message string `json:"message"`

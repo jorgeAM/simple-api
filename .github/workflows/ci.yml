@@ -17,7 +17,7 @@ jobs:
       - name: Setup Go 1.x
         uses: actions/setup-go@v2
         with:
-          go-version: ^1.13
+          go-version: ^1.15
 
       - name: Check out code into Go module directory
         uses: actions/checkout@v2
@@ -31,8 +31,8 @@ jobs:
             ${{runner.os}}-go-
             ${{runner.os}}-
 
-      - name: Get dependecies
-        run: go get -v -u ./...
+      - name: Get dependencies
+        run: go mod tidy
 
       - name: Tests
         run: go test -v ./...
@@ -44,7 +44,7 @@ jobs:
       - name: Setup Go 1.x
         uses: actions/setup-go@v2
         with:
-          go-version: ^1.13
+          go-version: ^1.15
 
       - name: check out code into Go module directory
         uses: actions/checkout@v2
@@ -58,8 +58,8 @@ jobs:
             ${{runner.os}}-go-
             ${{runner.os}}-
 
-      - name: Get dependecies
-        run: go get -v -u ./...
+      - name: Get dependencies
+        run: go mod tidy
 
       - name: Build binary
-        run: GOOS=linux GOARCH=amd64 go build -o application -ldflags="-s -w"
+        run: GOOS=linux GOARCH=amd64 go build -o ./bin/app -ldflags="-s -w" ./cmd/api/main.go
