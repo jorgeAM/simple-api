@@ -13,14 +13,14 @@ func NewUserRepository(db *gorm.DB) domain.Repository {
 	return &userRepository{db}
 }
 
-func (u *userRepository) NewUser(user *domain.User) (*domain.User, error) {
+func (u *userRepository) NewUser(user *domain.User) error {
 	err := u.db.Create(user).Error
 
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	return user, nil
+	return nil
 }
 
 func (u *userRepository) GetUsers() ([]*domain.User, error) {

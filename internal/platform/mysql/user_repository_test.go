@@ -69,10 +69,9 @@ func (s *UserSuite) TestNewUser() {
 
 	s.mock.ExpectCommit()
 
-	user, err := s.repository.NewUser(s.user)
+	err := s.repository.NewUser(s.user)
 
 	assert.Nilf(s.T(), err, "%v Should be nil", err)
-	assert.Equal(s.T(), s.user, user)
 }
 
 func (s *UserSuite) TestNewUserWithError() {
@@ -85,9 +84,8 @@ func (s *UserSuite) TestNewUserWithError() {
 	).WillReturnError(errors.New("Something got wrong to save record"))
 	s.mock.ExpectRollback()
 
-	user, err := s.repository.NewUser(s.user)
+	err := s.repository.NewUser(s.user)
 
-	assert.Nilf(s.T(), user, "%v Should be nil", user)
 	assert.NotNilf(s.T(), err, "%v should not be nil", err)
 }
 
