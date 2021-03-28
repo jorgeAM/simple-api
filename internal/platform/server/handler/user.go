@@ -61,6 +61,7 @@ func (h *Handler) GetUsers(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) GetUser(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
+
 	id := vars["id"]
 
 	user, err := h.Finding.FindUserByID(context.Background(), id)

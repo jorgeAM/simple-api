@@ -36,7 +36,8 @@ func (u *userRepository) GetUsers() ([]*domain.User, error) {
 
 func (u *userRepository) GetUser(id string) (*domain.User, error) {
 	user := new(domain.User)
-	err := u.db.First(user, id).Error
+
+	err := u.db.Where("id = ?", id).First(user).Error
 
 	if err != nil {
 		return nil, err
