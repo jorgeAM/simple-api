@@ -13,16 +13,16 @@ type UserID struct {
 	value string
 }
 
-func NewCourseID(value string) (*UserID, error) {
+func NewUserID(value string) (UserID, error) {
 	v, err := uuid.Parse(value)
 
 	if err != nil {
-		return nil, fmt.Errorf("%w: %s", ErrInvalidUserID, value)
+		return UserID{}, fmt.Errorf("%w: %s", ErrInvalidUserID, value)
 	}
 
-	return &UserID{value: v.String()}, nil
+	return UserID{value: v.String()}, nil
 }
 
-func (id *UserID) String() string {
+func (id UserID) String() string {
 	return id.value
 }

@@ -62,7 +62,7 @@ func TestCreateNewUser(t *testing.T) {
 
 			mockRepository := new(repositorymock.UserMockRepository)
 
-			user := &domain.User{ID: tt.input.id, Username: tt.input.username, FirstName: tt.input.firstName, LastName: tt.input.lastName}
+			user, _ := domain.NewUser(tt.input.id, tt.input.username, tt.input.firstName, tt.input.lastName)
 
 			mockRepository.On("NewUser", user).Return(tt.output.err)
 

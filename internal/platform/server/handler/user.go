@@ -30,6 +30,13 @@ type createUserRequest struct {
 	LastName  string `json:"lastName"`
 }
 
+type updateUserRequest struct {
+	ID        string `json:"id"`
+	Username  string `json:"username"`
+	FirstName string `json:"firstName"`
+	LastName  string `json:"lastName"`
+}
+
 func (h *Handler) GetUsers(w http.ResponseWriter, r *http.Request) {
 	users, err := h.Retrieving.GetAllUser(r.Context())
 
@@ -66,7 +73,7 @@ func (h *Handler) GetUser(w http.ResponseWriter, r *http.Request) {
 
 	user, err := h.Finding.FindUserByID(context.Background(), id)
 
-	if err != nil || user.ID == "" {
+	if err != nil {
 		m := &response.Response{
 			Code:    http.StatusNotFound,
 			Message: "user with id " + id + " does not exist",
@@ -130,9 +137,9 @@ func (h *Handler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
 
-	u := new(domain.User)
-	u.ID = id
-	err := json.NewDecoder(r.Body).Decode(u)
+	var req updateUserRequest
+
+	err := json.NewDecoder(r.Body).Decode(&req)
 
 	if err != nil {
 		m := &response.Response{
@@ -144,7 +151,21 @@ func (h *Handler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	u, err = h.Updating.UpdateUser(context.Background(), u)
+	req.ID = id
+
+	user, err := domain.NewUser(req.ID, req.Username, req.FirstName, req.LastName)
+
+	if err != nil {
+		m := &response.Response{
+			Code:    http.StatusBadRequest,
+			Message: "something got wrong to setup user",
+		}
+
+		response.DisplayMessage(w, m)
+		return
+	}
+
+	user, err = h.Updating.UpdateUser(context.Background(), user)
 
 	if err != nil {
 		m := &response.Response{
@@ -156,7 +177,7 @@ func (h *Handler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	bytes, err := json.Marshal(u)
+	bytes, err := json.Marshal(user)
 
 	if err != nil {
 		m := &response.Response{

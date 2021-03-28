@@ -12,6 +12,8 @@ import (
 )
 
 func TestUpdateUser(t *testing.T) {
+	user, _ := domain.NewUser("47a0f027-15e6-47cc-a5d2-64183281087e", "jorgeAM", "jorge", "alfaro")
+
 	tests := []struct {
 		name  string
 		input struct {
@@ -25,35 +27,20 @@ func TestUpdateUser(t *testing.T) {
 		{
 			name: "Update user without error",
 			input: struct{ user *domain.User }{
-				user: &domain.User{
-					ID:        "47a0f027-15e6-47cc-a5d2-64183281087e",
-					Username:  "jorgeAM",
-					FirstName: "Jorge",
-					LastName:  "Alfaro",
-				},
+				user: user,
 			},
 			output: struct {
 				user *domain.User
 				err  error
 			}{
-				user: &domain.User{
-					ID:        "47a0f027-15e6-47cc-a5d2-64183281087e",
-					Username:  "jorgeAM",
-					FirstName: "Jorge",
-					LastName:  "Alfaro",
-				},
-				err: nil,
+				user: user,
+				err:  nil,
 			},
 		},
 		{
 			name: "Update user with error",
 			input: struct{ user *domain.User }{
-				user: &domain.User{
-					ID:        "12",
-					Username:  "jorgeAM",
-					FirstName: "Jorge",
-					LastName:  "Alfaro",
-				},
+				user: user,
 			},
 			output: struct {
 				user *domain.User

@@ -46,12 +46,10 @@ func (s *UserSuite) SetupSuite() {
 
 	s.repository = NewUserRepository(s.DB)
 
-	s.user = &domain.User{
-		ID:        "88109b71-996c-42cd-997e-cbf81cf8f886",
-		Username:  "jorgeAM",
-		FirstName: "jorge",
-		LastName:  "alfaro",
-	}
+	user, err := domain.NewUser("88109b71-996c-42cd-997e-cbf81cf8f886", "jorgeAM", "jorge", "alfaro")
+	require.NoError(s.T(), err)
+
+	s.user = user
 }
 
 func (s *UserSuite) AfterTest(_, _ string) {
@@ -61,10 +59,10 @@ func (s *UserSuite) AfterTest(_, _ string) {
 func (s *UserSuite) TestNewUser() {
 	s.mock.ExpectBegin()
 	s.mock.ExpectExec(sqlInsert).WithArgs(
-		s.user.ID,
-		s.user.Username,
-		s.user.FirstName,
-		s.user.LastName,
+		s.user.ID.String(),
+		s.user.Username.String(),
+		s.user.FirstName.String(),
+		s.user.LastName.String(),
 	).WillReturnResult(sqlmock.NewResult(1, 1))
 
 	s.mock.ExpectCommit()
@@ -77,10 +75,10 @@ func (s *UserSuite) TestNewUser() {
 func (s *UserSuite) TestNewUserWithError() {
 	s.mock.ExpectBegin()
 	s.mock.ExpectExec(sqlInsert).WithArgs(
-		s.user.ID,
-		s.user.Username,
-		s.user.FirstName,
-		s.user.LastName,
+		s.user.ID.String(),
+		s.user.Username.String(),
+		s.user.FirstName.String(),
+		s.user.LastName.String(),
 	).WillReturnError(errors.New("Something got wrong to save record"))
 	s.mock.ExpectRollback()
 
@@ -94,20 +92,13 @@ func (s *UserSuite) TestGetUsers() {
 		AddRow("88109b71-996c-42cd-997e-cbf81cf8f885", "jorgeAM", "jorge", "alfaro").
 		AddRow("88109b71-996c-42cd-997e-cbf81cf8f881", "liliMA", "liliana", "murga")
 
-	usersExpected := []*domain.User{
-		{
-			ID:        "88109b71-996c-42cd-997e-cbf81cf8f885",
-			Username:  "jorgeAM",
-			FirstName: "jorge",
-			LastName:  "alfaro",
-		},
-		{
-			ID:        "88109b71-996c-42cd-997e-cbf81cf8f881",
-			Username:  "liliMA",
-			FirstName: "liliana",
-			LastName:  "murga",
-		},
-	}
+	userOne, err := domain.NewUser("88109b71-996c-42cd-997e-cbf81cf8f885", "jorgeAM", "jorge", "alfaro")
+	require.NoError(s.T(), err)
+
+	userTwo, err := domain.NewUser("88109b71-996c-42cd-997e-cbf81cf8f881", "liliAM", "liliana", "alfaro")
+	require.NoError(s.T(), err)
+
+	usersExpected := []*domain.User{userOne, userTwo}
 
 	s.mock.ExpectQuery(sqlSelectAll).WillReturnRows(rows)
 
@@ -132,7 +123,7 @@ func (s *UserSuite) TestGetUser() {
 
 	s.mock.ExpectQuery(sqlSelectWithWhere).WillReturnRows(rows)
 
-	user, err := s.repository.GetUser(s.user.ID)
+	user, err := s.repository.GetUser(s.user.ID.String())
 
 	assert.Nilf(s.T(), err, "%v Should be nil", err)
 	assert.Equal(s.T(), s.user, user)
@@ -141,7 +132,7 @@ func (s *UserSuite) TestGetUser() {
 func (s *UserSuite) TestGetUserNotFound() {
 	s.mock.ExpectQuery(sqlSelectWithWhere).WillReturnRows(sqlmock.NewRows(nil))
 
-	user, err := s.repository.GetUser(s.user.ID)
+	user, err := s.repository.GetUser(s.user.ID.String())
 
 	assert.NotNil(s.T(), err, "%v Should not be nil", err)
 	assert.Nilf(s.T(), user, "%v should be nil", user)
@@ -155,7 +146,7 @@ func (s *UserSuite) TestDeleteUser() {
 	s.mock.ExpectExec(sqlDelete).WillReturnResult(sqlmock.NewResult(1, 1))
 	s.mock.ExpectCommit()
 
-	err := s.repository.DeleteUser(s.user.ID)
+	err := s.repository.DeleteUser(s.user.ID.String())
 
 	assert.Nilf(s.T(), err, "%v Should be nil", err)
 }
@@ -165,7 +156,7 @@ func (s *UserSuite) TestDeleteUserWithError() {
 	s.mock.ExpectExec(sqlDelete).WillReturnResult(sqlmock.NewErrorResult(errors.New("not found")))
 	s.mock.ExpectRollback()
 
-	err := s.repository.DeleteUser(s.user.ID)
+	err := s.repository.DeleteUser(s.user.ID.String())
 
 	assert.NotNilf(s.T(), err, "%v Should not be nil", err)
 }

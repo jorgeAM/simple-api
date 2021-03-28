@@ -15,11 +15,10 @@ func NewUserCreatingService(repository domain.Repository) *UserCreatingService {
 }
 
 func (u *UserCreatingService) CreateNewUser(_ context.Context, id, username, firstName, lastName string) error {
-	user := &domain.User{
-		ID:        id,
-		Username:  username,
-		FirstName: firstName,
-		LastName:  lastName,
+	user, err := domain.NewUser(id, username, firstName, lastName)
+
+	if err != nil {
+		return err
 	}
 
 	return u.repository.NewUser(user)

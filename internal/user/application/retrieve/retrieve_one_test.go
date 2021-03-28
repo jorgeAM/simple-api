@@ -12,6 +12,8 @@ import (
 )
 
 func TestFindUserByID(t *testing.T) {
+	user, _ := domain.NewUser("47a0f027-15e6-47cc-a5d2-64183281087e", "jorgeAM", "jorge", "alfaro")
+
 	tests := []struct {
 		name  string
 		input struct {
@@ -31,13 +33,8 @@ func TestFindUserByID(t *testing.T) {
 				user *domain.User
 				err  error
 			}{
-				user: &domain.User{
-					ID:        "47a0f027-15e6-47cc-a5d2-64183281087e",
-					Username:  "jorgeAM",
-					FirstName: "Jorge",
-					LastName:  "Alfaro",
-				},
-				err: nil,
+				user: user,
+				err:  nil,
 			},
 		},
 		{
