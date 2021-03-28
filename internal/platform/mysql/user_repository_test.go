@@ -11,7 +11,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 
-	"github.com/jorgeAM/api/internal/user/domain"
+	"github.com/jorgeAM/simple-api/internal/user/domain"
 )
 
 const (
@@ -42,7 +42,7 @@ func (s *UserSuite) SetupSuite() {
 	s.DB, err = gorm.Open("mysql", db)
 	require.NoError(s.T(), err)
 
-	s.DB.LogMode(true)
+	s.DB.LogMode(false)
 
 	s.repository = NewUserRepository(s.DB)
 

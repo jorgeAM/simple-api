@@ -2,7 +2,7 @@ package route
 
 import (
 	"github.com/gorilla/mux"
-	"github.com/jorgeAM/api/internal/platform/server/handler"
+	"github.com/jorgeAM/simple-api/internal/platform/server/handler"
 )
 
 func initializeUsersRoutes(r *mux.Router, handler handler.Handler) {

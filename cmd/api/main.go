@@ -9,13 +9,13 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	_ "github.com/joho/godotenv/autoload"
 
-	"github.com/jorgeAM/api/internal/platform/mysql"
-	"github.com/jorgeAM/api/internal/platform/server"
-	"github.com/jorgeAM/api/internal/platform/server/handler"
-	"github.com/jorgeAM/api/internal/user/application/creating"
-	"github.com/jorgeAM/api/internal/user/application/removing"
-	"github.com/jorgeAM/api/internal/user/application/retrieve"
-	"github.com/jorgeAM/api/internal/user/application/updating"
+	"github.com/jorgeAM/simple-api/internal/platform/mysql"
+	"github.com/jorgeAM/simple-api/internal/platform/server"
+	"github.com/jorgeAM/simple-api/internal/platform/server/handler"
+	"github.com/jorgeAM/simple-api/internal/user/application/creating"
+	"github.com/jorgeAM/simple-api/internal/user/application/removing"
+	"github.com/jorgeAM/simple-api/internal/user/application/retrieve"
+	"github.com/jorgeAM/simple-api/internal/user/application/updating"
 )
 
 var (

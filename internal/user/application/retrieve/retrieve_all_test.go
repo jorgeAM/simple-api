@@ -7,8 +7,8 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/jorgeAM/api/internal/platform/repositorymock"
-	"github.com/jorgeAM/api/internal/user/domain"
+	"github.com/jorgeAM/simple-api/internal/platform/repositorymock"
+	"github.com/jorgeAM/simple-api/internal/user/domain"
 )
 
 func TestGetAllUser(t *testing.T) {

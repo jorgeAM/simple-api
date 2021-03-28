@@ -7,7 +7,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/jorgeAM/api/internal/platform/repositorymock"
+	"github.com/jorgeAM/simple-api/internal/platform/repositorymock"
 )
 
 func TestRemoveUserByID(t *testing.T) {

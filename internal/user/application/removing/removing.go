@@ -3,7 +3,7 @@ package removing
 import (
 	"context"
 
-	"github.com/jorgeAM/api/internal/user/domain"
+	"github.com/jorgeAM/simple-api/internal/user/domain"
 )
 
 type UserRemovingService struct {

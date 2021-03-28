@@ -6,8 +6,8 @@ import (
 
 	_ "github.com/joho/godotenv/autoload"
 
-	"github.com/jorgeAM/api/internal/platform/server/handler"
-	"github.com/jorgeAM/api/internal/platform/server/route"
+	"github.com/jorgeAM/simple-api/internal/platform/server/handler"
+	"github.com/jorgeAM/simple-api/internal/platform/server/route"
 )
 
 func Run(handler handler.Handler) error {

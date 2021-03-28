@@ -2,7 +2,7 @@ package mysql
 
 import (
 	"github.com/jinzhu/gorm"
-	"github.com/jorgeAM/api/internal/user/domain"
+	"github.com/jorgeAM/simple-api/internal/user/domain"
 )
 
 type userRepository struct {

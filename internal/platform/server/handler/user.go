@@ -6,12 +6,12 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
-	"github.com/jorgeAM/api/internal/kit/response"
-	"github.com/jorgeAM/api/internal/user/application/creating"
-	"github.com/jorgeAM/api/internal/user/application/removing"
-	"github.com/jorgeAM/api/internal/user/application/retrieve"
-	"github.com/jorgeAM/api/internal/user/application/updating"
-	"github.com/jorgeAM/api/internal/user/domain"
+	"github.com/jorgeAM/simple-api/internal/kit/response"
+	"github.com/jorgeAM/simple-api/internal/user/application/creating"
+	"github.com/jorgeAM/simple-api/internal/user/application/removing"
+	"github.com/jorgeAM/simple-api/internal/user/application/retrieve"
+	"github.com/jorgeAM/simple-api/internal/user/application/updating"
+	"github.com/jorgeAM/simple-api/internal/user/domain"
 )
 
 // Handler handles all endpoint for user
