@@ -24,10 +24,10 @@ type Handler struct {
 }
 
 type createUserRequest struct {
-	id        string
-	username  string
-	firstName string
-	lastName  string
+	ID        string `json:"id"`
+	Username  string `json:"username"`
+	FirstName string `json:"firstName"`
+	LastName  string `json:"lastName"`
 }
 
 func (h *Handler) GetUsers(w http.ResponseWriter, r *http.Request) {
@@ -92,10 +92,20 @@ func (h *Handler) GetUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) NewUser(w http.ResponseWriter, r *http.Request) {
-	req := new(createUserRequest)
-	json.NewDecoder(r.Body).Decode(req)
+	var req createUserRequest
+	err := json.NewDecoder(r.Body).Decode(&req)
 
-	err := h.Creating.CreateNewUser(context.Background(), req.id, req.username, req.firstName, req.lastName)
+	if err != nil {
+		m := &response.Response{
+			Code:    http.StatusBadRequest,
+			Message: "something got wrong to parse request body",
+		}
+
+		response.DisplayMessage(w, m)
+		return
+	}
+
+	err = h.Creating.CreateNewUser(context.Background(), req.ID, req.Username, req.FirstName, req.LastName)
 
 	if err != nil {
 		m := &response.Response{
