@@ -2,7 +2,6 @@ package mysql
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/jinzhu/gorm"
 	"github.com/jorgeAM/simple-api/internal/user/domain"
@@ -17,7 +16,7 @@ func NewUserRepository(db *gorm.DB) domain.Repository {
 }
 
 func (u *userRepository) NewUser(_ context.Context, user *domain.User) error {
-	err := u.db.Create(&userSQL{
+	err := u.db.Create(&userPrimitive{
 		ID:        user.ID.String(),
 		Username:  user.Username.String(),
 		FirstName: user.FirstName.String(),
@@ -32,7 +31,7 @@ func (u *userRepository) NewUser(_ context.Context, user *domain.User) error {
 }
 
 func (u *userRepository) GetUsers(_ context.Context) ([]*domain.User, error) {
-	var usersSQL []*userSQL
+	var usersSQL []*userPrimitive
 
 	err := u.db.Find(&usersSQL).Error
 
@@ -43,7 +42,7 @@ func (u *userRepository) GetUsers(_ context.Context) ([]*domain.User, error) {
 	var users []*domain.User
 
 	for _, userSQL := range usersSQL {
-		user, _ := userSQL.parseToUser()
+		user, _ := userSQL.UnmarshalAggregate()
 
 		users = append(users, user)
 	}
@@ -52,7 +51,7 @@ func (u *userRepository) GetUsers(_ context.Context) ([]*domain.User, error) {
 }
 
 func (u *userRepository) GetUser(_ context.Context, id string) (*domain.User, error) {
-	var user userSQL
+	var user userPrimitive
 
 	err := u.db.Where("id = ?", id).First(&user).Error
 
@@ -60,13 +59,11 @@ func (u *userRepository) GetUser(_ context.Context, id string) (*domain.User, er
 		return nil, err
 	}
 
-	fmt.Println(user)
-
-	return user.parseToUser()
+	return user.UnmarshalAggregate()
 }
 
 func (u *userRepository) DeleteUser(_ context.Context, id string) error {
-	err := u.db.Where("id = ?", id).Delete(userSQL{}).Error
+	err := u.db.Where("id = ?", id).Delete(userPrimitive{}).Error
 
 	if err != nil {
 		return err

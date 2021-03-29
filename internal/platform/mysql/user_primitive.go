@@ -2,18 +2,18 @@ package mysql
 
 import "github.com/jorgeAM/simple-api/internal/user/domain"
 
-type userSQL struct {
+type userPrimitive struct {
 	ID        string
 	Username  string
 	FirstName string
 	LastName  string
 }
 
-func (userSQL) TableName() string {
+func (userPrimitive) TableName() string {
 	return "users"
 }
 
-func (u userSQL) parseToUser() (*domain.User, error) {
+func (u userPrimitive) UnmarshalAggregate() (*domain.User, error) {
 	user, err := domain.NewUser(u.ID, u.Username, u.FirstName, u.LastName)
 
 	if err != nil {

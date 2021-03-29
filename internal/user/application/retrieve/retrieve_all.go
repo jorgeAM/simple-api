@@ -14,6 +14,19 @@ func NewUserRetrieveAllService(repository domain.Repository) *UserRetrieveAllSer
 	return &UserRetrieveAllService{repository}
 }
 
-func (u *UserRetrieveAllService) GetAllUser(ctx context.Context) ([]*domain.User, error) {
-	return u.repository.GetUsers(ctx)
+func (u *UserRetrieveAllService) GetAllUser(ctx context.Context) ([]*userResponse, error) {
+	users, err := u.repository.GetUsers(ctx)
+
+	if err != nil {
+		return nil, err
+	}
+
+	var usersRes []*userResponse
+
+	for _, user := range users {
+		userRes := NewUserResponseFromAggregate(user)
+		usersRes = append(usersRes, userRes)
+	}
+
+	return usersRes, nil
 }

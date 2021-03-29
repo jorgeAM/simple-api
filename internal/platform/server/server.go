@@ -1,22 +1,39 @@
 package server
 
 import (
-	"net/http"
 	"os"
 
+	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/logger"
 	_ "github.com/joho/godotenv/autoload"
-
 	"github.com/jorgeAM/simple-api/internal/platform/server/handler"
 	"github.com/jorgeAM/simple-api/internal/platform/server/route"
 )
 
-func Run(handler handler.Handler) error {
-	port := ":" + os.Getenv("PORT")
+type Server struct {
+	engine *fiber.App
+	port   string
+}
 
-	s := http.Server{
-		Addr:    port,
-		Handler: route.InitializeRoutes(handler),
+func NewServer(handler handler.Handler) *Server {
+	server := &Server{
+		engine: fiber.New(),
+		port:   ":" + os.Getenv("PORT"),
 	}
 
-	return s.ListenAndServe()
+	server.engine.Use(logger.New())
+
+	server.registerRoutes(handler)
+
+	return server
+}
+
+func (s *Server) registerRoutes(handler handler.Handler) {
+	router := s.engine.Group("/users")
+
+	route.InitializeUsersRoutes(router, handler)
+}
+
+func (s *Server) Run() error {
+	return s.engine.Listen(s.port)
 }

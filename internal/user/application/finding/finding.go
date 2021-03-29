@@ -14,6 +14,14 @@ func NewUserRetrieveOneService(repository domain.Repository) *UserRetrieveOneSer
 	return &UserRetrieveOneService{repository}
 }
 
-func (u *UserRetrieveOneService) FindUserByID(ctx context.Context, id string) (*domain.User, error) {
-	return u.repository.GetUser(ctx, id)
+func (u *UserRetrieveOneService) FindUserByID(ctx context.Context, userID domain.UserID) (*userResponse, error) {
+	user, err := u.repository.GetUser(ctx, userID.String())
+
+	if err != nil {
+		return nil, err
+	}
+
+	userRes := NewUserResponseFromAggregate(user)
+
+	return userRes, nil
 }

@@ -46,7 +46,9 @@ func main() {
 
 	log.Println("server is running ...")
 
-	if err := server.Run(handler); err != nil {
+	srv := server.NewServer(handler)
+
+	if err := srv.Run(); err != nil {
 		log.Fatalf("something got wrong when we try to run web server %v", err)
 	}
 }

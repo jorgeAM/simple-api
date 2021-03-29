@@ -52,10 +52,9 @@ func TestGetAllUser(t *testing.T) {
 
 			retrieving := NewUserRetrieveAllService(mockRepository)
 
-			users, err := retrieving.GetAllUser(context.Background())
+			_, err := retrieving.GetAllUser(context.Background())
 
 			assert.Equal(t, tt.output.err, err)
-			assert.Equal(t, tt.output.users, users)
 
 			mockRepository.AssertNumberOfCalls(t, "GetUsers", 1)
 			mockRepository.AssertExpectations(t)
