@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 
 	"github.com/jorgeAM/simple-api/internal/platform/repositorymock"
 	"github.com/jorgeAM/simple-api/internal/user/domain"
@@ -47,7 +48,7 @@ func TestGetAllUser(t *testing.T) {
 
 			mockRepository := new(repositorymock.UserMockRepository)
 
-			mockRepository.On("GetUsers").Return(tt.output.users, tt.output.err)
+			mockRepository.On("GetUsers", mock.Anything).Return(tt.output.users, tt.output.err)
 
 			retrieving := NewUserRetrieveAllService(mockRepository)
 

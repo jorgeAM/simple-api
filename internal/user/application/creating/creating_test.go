@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 
 	"github.com/jorgeAM/simple-api/internal/platform/repositorymock"
 	"github.com/jorgeAM/simple-api/internal/user/domain"
@@ -47,7 +48,7 @@ func TestCreateNewUser(t *testing.T) {
 				firstName string
 				lastName  string
 			}{
-				id:        "12",
+				id:        "47a0f027-15e6-47cc-a5d2-64183281077e",
 				username:  "jorgeAM",
 				firstName: "Jorge",
 				lastName:  "Alfaro",
@@ -64,7 +65,7 @@ func TestCreateNewUser(t *testing.T) {
 
 			user, _ := domain.NewUser(tt.input.id, tt.input.username, tt.input.firstName, tt.input.lastName)
 
-			mockRepository.On("NewUser", user).Return(tt.output.err)
+			mockRepository.On("NewUser", mock.Anything, user).Return(tt.output.err)
 
 			creating := NewUserCreatingService(mockRepository)
 

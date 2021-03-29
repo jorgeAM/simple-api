@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 
 	"github.com/jorgeAM/simple-api/internal/platform/repositorymock"
 )
@@ -42,7 +43,7 @@ func TestRemoveUserByID(t *testing.T) {
 
 			mockRepository := new(repositorymock.UserMockRepository)
 
-			mockRepository.On("DeleteUser", tt.input.id).Return(tt.output.err)
+			mockRepository.On("DeleteUser", mock.Anything, tt.input.id).Return(tt.output.err)
 
 			removing := NewUserRemovingService(mockRepository)
 

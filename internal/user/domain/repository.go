@@ -1,9 +1,10 @@
 package domain
 
+import "context"
+
 type Repository interface {
-	NewUser(user *User) error
-	GetUsers() ([]*User, error)
-	GetUser(id string) (*User, error)
-	UpdateUser(user *User) (*User, error)
-	DeleteUser(id string) error
+	NewUser(ctx context.Context, user *User) error
+	GetUsers(ctx context.Context) ([]*User, error)
+	GetUser(ctx context.Context, id string) (*User, error)
+	DeleteUser(ctx context.Context, id string) error
 }

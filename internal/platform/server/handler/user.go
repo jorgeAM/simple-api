@@ -8,18 +8,16 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/jorgeAM/simple-api/internal/kit/response"
 	"github.com/jorgeAM/simple-api/internal/user/application/creating"
+	"github.com/jorgeAM/simple-api/internal/user/application/finding"
 	"github.com/jorgeAM/simple-api/internal/user/application/removing"
 	"github.com/jorgeAM/simple-api/internal/user/application/retrieve"
-	"github.com/jorgeAM/simple-api/internal/user/application/updating"
-	"github.com/jorgeAM/simple-api/internal/user/domain"
 )
 
 // Handler handles all endpoint for user
 type Handler struct {
 	Creating   *creating.UserCreatingService
 	Retrieving *retrieve.UserRetrieveAllService
-	Finding    *retrieve.UserRetrieveOneService
-	Updating   *updating.UserUpdatingService
+	Finding    *finding.UserRetrieveOneService
 	Removing   *removing.UserRemovingService
 }
 
@@ -131,67 +129,6 @@ func (h *Handler) NewUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	response.DisplayMessage(w, m)
-}
-
-func (h *Handler) UpdateUser(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	id := vars["id"]
-
-	var req updateUserRequest
-
-	err := json.NewDecoder(r.Body).Decode(&req)
-
-	if err != nil {
-		m := &response.Response{
-			Code:    http.StatusBadRequest,
-			Message: "something got wrong to parsing body",
-		}
-
-		response.DisplayMessage(w, m)
-		return
-	}
-
-	req.ID = id
-
-	user, err := domain.NewUser(req.ID, req.Username, req.FirstName, req.LastName)
-
-	if err != nil {
-		m := &response.Response{
-			Code:    http.StatusBadRequest,
-			Message: "something got wrong to setup user",
-		}
-
-		response.DisplayMessage(w, m)
-		return
-	}
-
-	user, err = h.Updating.UpdateUser(context.Background(), user)
-
-	if err != nil {
-		m := &response.Response{
-			Code:    http.StatusBadRequest,
-			Message: "something got wrong to update user",
-		}
-
-		response.DisplayMessage(w, m)
-		return
-	}
-
-	bytes, err := json.Marshal(user)
-
-	if err != nil {
-		m := &response.Response{
-			Code:    http.StatusBadRequest,
-			Message: "something got wrong to convert to json",
-		}
-
-		response.DisplayMessage(w, m)
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	w.Write(bytes)
 }
 
 func (h *Handler) DeleteUser(w http.ResponseWriter, r *http.Request) {

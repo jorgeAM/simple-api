@@ -1,4 +1,4 @@
-package retrieve
+package finding
 
 import (
 	"context"
@@ -14,6 +14,6 @@ func NewUserRetrieveOneService(repository domain.Repository) *UserRetrieveOneSer
 	return &UserRetrieveOneService{repository}
 }
 
-func (u *UserRetrieveOneService) FindUserByID(_ context.Context, id string) (*domain.User, error) {
-	return u.repository.GetUser(id)
+func (u *UserRetrieveOneService) FindUserByID(ctx context.Context, id string) (*domain.User, error) {
+	return u.repository.GetUser(ctx, id)
 }

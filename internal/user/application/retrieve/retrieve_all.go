@@ -14,6 +14,6 @@ func NewUserRetrieveAllService(repository domain.Repository) *UserRetrieveAllSer
 	return &UserRetrieveAllService{repository}
 }
 
-func (u *UserRetrieveAllService) GetAllUser(_ context.Context) ([]*domain.User, error) {
-	return u.repository.GetUsers()
+func (u *UserRetrieveAllService) GetAllUser(ctx context.Context) ([]*domain.User, error) {
+	return u.repository.GetUsers(ctx)
 }

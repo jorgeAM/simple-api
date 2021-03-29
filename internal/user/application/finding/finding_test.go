@@ -1,4 +1,4 @@
-package retrieve
+package finding
 
 import (
 	"context"
@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 
 	"github.com/jorgeAM/simple-api/internal/platform/repositorymock"
 	"github.com/jorgeAM/simple-api/internal/user/domain"
@@ -40,7 +41,7 @@ func TestFindUserByID(t *testing.T) {
 		{
 			name: "get user by ID with error",
 			input: struct{ id string }{
-				id: "28",
+				id: "47a0f027-15e6-47cc-a5d2-64183281087e",
 			},
 			output: struct {
 				user *domain.User
@@ -58,7 +59,7 @@ func TestFindUserByID(t *testing.T) {
 
 			mockRepository := new(repositorymock.UserMockRepository)
 
-			mockRepository.On("GetUser", tt.input.id).Return(tt.output.user, tt.output.err)
+			mockRepository.On("GetUser", mock.Anything, tt.input.id).Return(tt.output.user, tt.output.err)
 
 			retrieving := NewUserRetrieveOneService(mockRepository)
 

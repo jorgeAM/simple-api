@@ -10,6 +10,5 @@ func initializeUsersRoutes(r *mux.Router, handler handler.Handler) {
 	s.HandleFunc("", handler.NewUser).Methods("POST")
 	s.HandleFunc("", handler.GetUsers).Methods("GET")
 	s.HandleFunc("/{id}", handler.GetUser).Methods("GET")
-	s.HandleFunc("/{id}", handler.UpdateUser).Methods("PUT")
 	s.HandleFunc("/{id}", handler.DeleteUser).Methods("DELETE")
 }

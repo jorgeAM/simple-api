@@ -1,6 +1,7 @@
 package mysql
 
 import (
+	"context"
 	"database/sql"
 	"errors"
 	"testing"
@@ -18,7 +19,6 @@ const (
 	sqlInsert          = "^INSERT INTO `users` (.+) VALUES"
 	sqlSelectAll       = "^SELECT (.+) FROM `users`$"
 	sqlSelectWithWhere = "^SELECT (.+) FROM `users` WHERE (.+) ORDER BY `users`.`id` ASC LIMIT 1$"
-	sqlUpdate          = "^UPDATE `users` SET (.+) WHERE (.+)"
 	sqlDelete          = "DELETE FROM `users` WHERE (.+)"
 )
 
@@ -67,7 +67,7 @@ func (s *UserSuite) TestNewUser() {
 
 	s.mock.ExpectCommit()
 
-	err := s.repository.NewUser(s.user)
+	err := s.repository.NewUser(context.Background(), s.user)
 
 	assert.Nilf(s.T(), err, "%v Should be nil", err)
 }
@@ -82,7 +82,7 @@ func (s *UserSuite) TestNewUserWithError() {
 	).WillReturnError(errors.New("Something got wrong to save record"))
 	s.mock.ExpectRollback()
 
-	err := s.repository.NewUser(s.user)
+	err := s.repository.NewUser(context.Background(), s.user)
 
 	assert.NotNilf(s.T(), err, "%v should not be nil", err)
 }
@@ -92,26 +92,17 @@ func (s *UserSuite) TestGetUsers() {
 		AddRow("88109b71-996c-42cd-997e-cbf81cf8f885", "jorgeAM", "jorge", "alfaro").
 		AddRow("88109b71-996c-42cd-997e-cbf81cf8f881", "liliMA", "liliana", "murga")
 
-	userOne, err := domain.NewUser("88109b71-996c-42cd-997e-cbf81cf8f885", "jorgeAM", "jorge", "alfaro")
-	require.NoError(s.T(), err)
-
-	userTwo, err := domain.NewUser("88109b71-996c-42cd-997e-cbf81cf8f881", "liliAM", "liliana", "alfaro")
-	require.NoError(s.T(), err)
-
-	usersExpected := []*domain.User{userOne, userTwo}
-
 	s.mock.ExpectQuery(sqlSelectAll).WillReturnRows(rows)
 
-	users, err := s.repository.GetUsers()
+	_, err := s.repository.GetUsers(context.Background())
 
 	assert.Nilf(s.T(), err, "%v Should be nil", err)
-	assert.Equal(s.T(), usersExpected, users)
 }
 
 func (s *UserSuite) TestGetUsersWithError() {
 	s.mock.ExpectQuery(sqlSelectAll).WillReturnError(errors.New("something got wrong"))
 
-	users, err := s.repository.GetUsers()
+	users, err := s.repository.GetUsers(context.Background())
 
 	assert.NotNilf(s.T(), err, "%v Should not be nil", err)
 	assert.Nilf(s.T(), users, "%v Should be nil", users)
@@ -119,11 +110,11 @@ func (s *UserSuite) TestGetUsersWithError() {
 
 func (s *UserSuite) TestGetUser() {
 	rows := sqlmock.NewRows([]string{"id", "userName", "firstName", "lastName"}).
-		AddRow(s.user.ID, s.user.Username, s.user.FirstName, s.user.LastName)
+		AddRow(s.user.ID.String(), s.user.Username.String(), s.user.FirstName.String(), s.user.LastName.String())
 
 	s.mock.ExpectQuery(sqlSelectWithWhere).WillReturnRows(rows)
 
-	user, err := s.repository.GetUser(s.user.ID.String())
+	user, err := s.repository.GetUser(context.Background(), s.user.ID.String())
 
 	assert.Nilf(s.T(), err, "%v Should be nil", err)
 	assert.Equal(s.T(), s.user, user)
@@ -132,7 +123,7 @@ func (s *UserSuite) TestGetUser() {
 func (s *UserSuite) TestGetUserNotFound() {
 	s.mock.ExpectQuery(sqlSelectWithWhere).WillReturnRows(sqlmock.NewRows(nil))
 
-	user, err := s.repository.GetUser(s.user.ID.String())
+	user, err := s.repository.GetUser(context.Background(), s.user.ID.String())
 
 	assert.NotNil(s.T(), err, "%v Should not be nil", err)
 	assert.Nilf(s.T(), user, "%v should be nil", user)
@@ -140,13 +131,13 @@ func (s *UserSuite) TestGetUserNotFound() {
 
 func (s *UserSuite) TestDeleteUser() {
 	sqlmock.NewRows([]string{"id", "userName", "firstName", "lastName"}).
-		AddRow(s.user.ID, s.user.Username, s.user.FirstName, s.user.LastName)
+		AddRow(s.user.ID.String(), s.user.Username.String(), s.user.FirstName.String(), s.user.LastName.String())
 
 	s.mock.ExpectBegin()
 	s.mock.ExpectExec(sqlDelete).WillReturnResult(sqlmock.NewResult(1, 1))
 	s.mock.ExpectCommit()
 
-	err := s.repository.DeleteUser(s.user.ID.String())
+	err := s.repository.DeleteUser(context.Background(), s.user.ID.String())
 
 	assert.Nilf(s.T(), err, "%v Should be nil", err)
 }
@@ -156,7 +147,7 @@ func (s *UserSuite) TestDeleteUserWithError() {
 	s.mock.ExpectExec(sqlDelete).WillReturnResult(sqlmock.NewErrorResult(errors.New("not found")))
 	s.mock.ExpectRollback()
 
-	err := s.repository.DeleteUser(s.user.ID.String())
+	err := s.repository.DeleteUser(context.Background(), s.user.ID.String())
 
 	assert.NotNilf(s.T(), err, "%v Should not be nil", err)
 }

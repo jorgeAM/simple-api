@@ -13,9 +13,9 @@ import (
 	"github.com/jorgeAM/simple-api/internal/platform/server"
 	"github.com/jorgeAM/simple-api/internal/platform/server/handler"
 	"github.com/jorgeAM/simple-api/internal/user/application/creating"
+	"github.com/jorgeAM/simple-api/internal/user/application/finding"
 	"github.com/jorgeAM/simple-api/internal/user/application/removing"
 	"github.com/jorgeAM/simple-api/internal/user/application/retrieve"
-	"github.com/jorgeAM/simple-api/internal/user/application/updating"
 )
 
 var (
@@ -34,15 +34,13 @@ func main() {
 
 	creating := creating.NewUserCreatingService(repository)
 	retrieving := retrieve.NewUserRetrieveAllService(repository)
-	finding := retrieve.NewUserRetrieveOneService(repository)
-	updating := updating.NewUserUpdatingService(repository)
+	finding := finding.NewUserRetrieveOneService(repository)
 	removing := removing.NewUserRemovingService(repository)
 
 	handler := handler.Handler{
 		Creating:   creating,
 		Retrieving: retrieving,
 		Finding:    finding,
-		Updating:   updating,
 		Removing:   removing,
 	}
 
