@@ -118,7 +118,7 @@ func (h *Handler) NewUser(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		m := &response.Response{
 			Code:    http.StatusBadRequest,
-			Message: "something got wrong when try to save user",
+			Message: err.Error(),
 		}
 
 		response.DisplayMessage(w, m)

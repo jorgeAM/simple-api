@@ -14,7 +14,12 @@ func NewUserRepository(db *gorm.DB) domain.Repository {
 }
 
 func (u *userRepository) NewUser(user *domain.User) error {
-	err := u.db.Create(user).Error
+	err := u.db.Create(&userSQL{
+		ID:        user.ID.String(),
+		Username:  user.Username.String(),
+		FirstName: user.FirstName.String(),
+		LastName:  user.LastName.String(),
+	}).Error
 
 	if err != nil {
 		return err
@@ -24,18 +29,27 @@ func (u *userRepository) NewUser(user *domain.User) error {
 }
 
 func (u *userRepository) GetUsers() ([]*domain.User, error) {
-	var users []*domain.User
-	err := u.db.Find(&users).Error
+	var usersSQL []*userSQL
+
+	err := u.db.Find(&usersSQL).Error
 
 	if err != nil {
 		return nil, err
+	}
+
+	var users []*domain.User
+
+	for _, userSQL := range usersSQL {
+		user, _ := userSQL.parseToUser()
+
+		users = append(users, user)
 	}
 
 	return users, nil
 }
 
 func (u *userRepository) GetUser(id string) (*domain.User, error) {
-	user := new(domain.User)
+	var user userSQL
 
 	err := u.db.Where("id = ?", id).First(user).Error
 
@@ -43,21 +57,28 @@ func (u *userRepository) GetUser(id string) (*domain.User, error) {
 		return nil, err
 	}
 
-	return user, nil
+	return user.parseToUser()
 }
 
 func (u *userRepository) UpdateUser(user *domain.User) (*domain.User, error) {
-	err := u.db.Save(user).Error
+	userDB := &userSQL{
+		ID:        user.ID.String(),
+		Username:  user.Username.String(),
+		FirstName: user.FirstName.String(),
+		LastName:  user.LastName.String(),
+	}
+
+	err := u.db.Save(userDB).Error
 
 	if err != nil {
 		return nil, err
 	}
 
-	return user, nil
+	return userDB.parseToUser()
 }
 
 func (u *userRepository) DeleteUser(id string) error {
-	err := u.db.Where("id = ?", id).Delete(domain.User{}).Error
+	err := u.db.Where("id = ?", id).Delete(userSQL{}).Error
 
 	if err != nil {
 		return err
