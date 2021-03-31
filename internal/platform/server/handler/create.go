@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/jorgeAM/simple-api/internal/user/application/creating"
 )
 
 type createUserRequest struct {
@@ -22,7 +23,9 @@ func (h *Handler) NewUser(c *fiber.Ctx) error {
 		return c.Status(http.StatusBadRequest).JSON(fiber.Map{"message": "something got wrong to parse request body"})
 	}
 
-	err = h.Creating.CreateNewUser(c.Context(), req.ID, req.Username, req.FirstName, req.LastName)
+	createNewUserCmd := creating.NewCreateNewUserComand(req.ID, req.Username, req.FirstName, req.LastName)
+
+	err = h.CommandBus.Dispatch(c.Context(), createNewUserCmd)
 
 	if err != nil {
 		return c.Status(http.StatusBadRequest).JSON(fiber.Map{"message": err.Error()})

@@ -5,7 +5,9 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/logger"
+
 	_ "github.com/joho/godotenv/autoload"
+
 	"github.com/jorgeAM/simple-api/internal/platform/server/handler"
 	"github.com/jorgeAM/simple-api/internal/platform/server/route"
 )

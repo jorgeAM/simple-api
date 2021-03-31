@@ -10,11 +10,11 @@ type UserRetrieveOneService struct {
 	repository domain.Repository
 }
 
-func NewUserRetrieveOneService(repository domain.Repository) *UserRetrieveOneService {
-	return &UserRetrieveOneService{repository}
+func NewUserRetrieveOneService(repository domain.Repository) UserRetrieveOneService {
+	return UserRetrieveOneService{repository}
 }
 
-func (u *UserRetrieveOneService) FindUserByID(ctx context.Context, userID domain.UserID) (*userResponse, error) {
+func (u UserRetrieveOneService) FindUserByID(ctx context.Context, userID domain.UserID) (*userResponse, error) {
 	user, err := u.repository.GetUser(ctx, userID.String())
 
 	if err != nil {
