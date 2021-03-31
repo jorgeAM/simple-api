@@ -11,7 +11,7 @@ type CreateNewUserCommand struct {
 	lastName  string
 }
 
-func (cmd CreateNewUserCommand) Type() command.Type {
+func (c CreateNewUserCommand) Type() command.Type {
 	return CreateNewUserCommandType
 }
 

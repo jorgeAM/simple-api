@@ -41,14 +41,15 @@ func main() {
 	removingService := removing.NewUserRemovingService(repository)
 
 	createNewUserHandler := creating.NewCreateNewUserHandler(creatingService)
+	removeUserHandler := removing.NewRemoveUserHandler(removingService)
 
 	// register commands
 	commandBus.Register(creating.CreateNewUserCommandType, createNewUserHandler)
+	commandBus.Register(removing.RemoveUserCommandType, removeUserHandler)
 
 	handler := handler.Handler{
 		Retrieving: retrievingService,
 		Finding:    findingService,
-		Removing:   removingService,
 		CommandBus: commandBus,
 	}
 
