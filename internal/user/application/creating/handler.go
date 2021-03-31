@@ -12,7 +12,7 @@ type CreateNewUserHandler struct {
 }
 
 func (h CreateNewUserHandler) Handle(ctx context.Context, cmd command.Command) error {
-	createNewUserCmd, ok := cmd.(CreateNewUserComand)
+	createNewUserCmd, ok := cmd.(CreateNewUserCommand)
 
 	if !ok {
 		return errors.New("unexpected command")

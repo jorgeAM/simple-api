@@ -10,11 +10,11 @@ type UserCreatingService struct {
 	repository domain.Repository
 }
 
-func NewUserCreatingService(repository domain.Repository) *UserCreatingService {
-	return &UserCreatingService{repository}
+func NewUserCreatingService(repository domain.Repository) UserCreatingService {
+	return UserCreatingService{repository}
 }
 
-func (u *UserCreatingService) CreateNewUser(ctx context.Context, id, username, firstName, lastName string) error {
+func (u UserCreatingService) CreateNewUser(ctx context.Context, id, username, firstName, lastName string) error {
 	user, err := domain.NewUser(id, username, firstName, lastName)
 
 	if err != nil {

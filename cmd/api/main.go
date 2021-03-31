@@ -9,6 +9,7 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	_ "github.com/joho/godotenv/autoload"
 
+	"github.com/jorgeAM/simple-api/internal/platform/bus"
 	"github.com/jorgeAM/simple-api/internal/platform/mysql"
 	"github.com/jorgeAM/simple-api/internal/platform/server"
 	"github.com/jorgeAM/simple-api/internal/platform/server/handler"
@@ -32,16 +33,23 @@ func main() {
 
 	repository := mysql.NewUserRepository(db)
 
-	creating := creating.NewUserCreatingService(repository)
-	retrieving := retrieve.NewUserRetrieveAllService(repository)
-	finding := finding.NewUserRetrieveOneService(repository)
-	removing := removing.NewUserRemovingService(repository)
+	commandBus := bus.NewCommandBus()
+
+	creatingService := creating.NewUserCreatingService(repository)
+	retrievingService := retrieve.NewUserRetrieveAllService(repository)
+	findingService := finding.NewUserRetrieveOneService(repository)
+	removingService := removing.NewUserRemovingService(repository)
+
+	createNewUserHandler := creating.NewCreateNewUserHandler(creatingService)
+
+	// register commands
+	commandBus.Register(creating.CreateNewUserCommandType, createNewUserHandler)
 
 	handler := handler.Handler{
-		Creating:   creating,
-		Retrieving: retrieving,
-		Finding:    finding,
-		Removing:   removing,
+		Retrieving: retrievingService,
+		Finding:    findingService,
+		Removing:   removingService,
+		CommandBus: commandBus,
 	}
 
 	log.Println("server is running ...")

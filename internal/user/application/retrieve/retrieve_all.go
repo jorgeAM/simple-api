@@ -10,11 +10,11 @@ type UserRetrieveAllService struct {
 	repository domain.Repository
 }
 
-func NewUserRetrieveAllService(repository domain.Repository) *UserRetrieveAllService {
-	return &UserRetrieveAllService{repository}
+func NewUserRetrieveAllService(repository domain.Repository) UserRetrieveAllService {
+	return UserRetrieveAllService{repository}
 }
 
-func (u *UserRetrieveAllService) GetAllUser(ctx context.Context) ([]*userResponse, error) {
+func (u UserRetrieveAllService) GetAllUser(ctx context.Context) ([]*userResponse, error) {
 	users, err := u.repository.GetUsers(ctx)
 
 	if err != nil {
