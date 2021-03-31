@@ -5,9 +5,8 @@ go 1.13
 require (
 	github.com/DATA-DOG/go-sqlmock v1.4.1
 	github.com/go-sql-driver/mysql v1.5.0
-	github.com/gofiber/fiber/v2 v2.7.1 // indirect
+	github.com/gofiber/fiber/v2 v2.7.1
 	github.com/google/uuid v1.2.0
-	github.com/gorilla/mux v1.7.4
 	github.com/jinzhu/gorm v1.9.15
 	github.com/joho/godotenv v1.3.0
 	github.com/klauspost/compress v1.11.13 // indirect
