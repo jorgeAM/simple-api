@@ -49,12 +49,13 @@ func main() {
 	commandBus.Register(removing.RemoveUserCommandType, removeUserHandler)
 
 	getAllUserHandler := retrieve.NewGetAllUsersHandler(retrievingService)
+	findUserByIDHandler := finding.NewFindUserByIDHandler(findingService)
 
 	// register queries
 	queryBus.Register(retrieve.GetAllUsersQueryType, getAllUserHandler)
+	queryBus.Register(finding.FindUserByIDQueryType, findUserByIDHandler)
 
 	handler := handler.Handler{
-		Finding:    findingService,
 		CommandBus: commandBus,
 		QueryBus:   queryBus,
 	}
