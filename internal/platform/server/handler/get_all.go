@@ -4,10 +4,13 @@ import (
 	"net/http"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/jorgeAM/simple-api/internal/user/application/retrieve"
 )
 
 func (h *Handler) GetUsers(c *fiber.Ctx) error {
-	users, err := h.Retrieving.GetAllUser(c.Context())
+	getAllUserQuery := retrieve.NewGetAllUsersQuery()
+
+	users, err := h.QueryBus.Dispatch(c.Context(), getAllUserQuery)
 
 	if err != nil {
 		return c.Status(http.StatusNotFound).JSON(fiber.Map{"message": err.Error()})

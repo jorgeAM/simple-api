@@ -2,13 +2,13 @@ package handler
 
 import (
 	"github.com/jorgeAM/simple-api/internal/user/application/finding"
-	"github.com/jorgeAM/simple-api/internal/user/application/retrieve"
 	"github.com/jorgeAM/simple-api/kit/command"
+	"github.com/jorgeAM/simple-api/kit/query"
 )
 
 // Handler handles all endpoint for user
 type Handler struct {
-	Retrieving retrieve.UserRetrieveAllService
 	Finding    finding.UserRetrieveOneService
 	CommandBus command.Bus
+	QueryBus   query.Bus
 }

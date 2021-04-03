@@ -34,6 +34,7 @@ func main() {
 	repository := mysql.NewUserRepository(db)
 
 	commandBus := bus.NewCommandBus()
+	queryBus := bus.NewQueryBus()
 
 	creatingService := creating.NewUserCreatingService(repository)
 	retrievingService := retrieve.NewUserRetrieveAllService(repository)
@@ -47,10 +48,15 @@ func main() {
 	commandBus.Register(creating.CreateNewUserCommandType, createNewUserHandler)
 	commandBus.Register(removing.RemoveUserCommandType, removeUserHandler)
 
+	getAllUserHandler := retrieve.NewGetAllUsersHandler(retrievingService)
+
+	// register queries
+	queryBus.Register(retrieve.GetAllUsersQueryType, getAllUserHandler)
+
 	handler := handler.Handler{
-		Retrieving: retrievingService,
 		Finding:    findingService,
 		CommandBus: commandBus,
+		QueryBus:   queryBus,
 	}
 
 	log.Println("server is running ...")
